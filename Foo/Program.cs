@@ -1,12 +1,12 @@
 using Foo.Data;
+using Foo.Data.QueryHandlers;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddDbContext<BookContext>(options => options.UseSqlServer("Server=localhost;Database=demo;User Id=sa;Password=NunnajaBeezwax;TrustServerCertificate=True"));
-
-// Add services to the container.
-builder.Services.AddRazorPages();
+builder.Services.AddTransient<IQueryHandler<FindBookByTitleQuery, IEnumerable<Book>>, FindBookByTitleQueryHandler>();
 
 var app = builder.Build();
 
@@ -18,13 +18,7 @@ if (!app.Environment.IsDevelopment())
     app.UseHsts();
 }
 
-app.UseHttpsRedirection();
-app.UseStaticFiles();
-
-app.UseRouting();
-
-app.UseAuthorization();
-
-app.MapRazorPages();
+app.MapGet("/books", async ([FromServices] IQueryHandler<FindBookByTitleQuery, IEnumerable<Book>> queryHandler, [FromQuery] string title) 
+    => await queryHandler.Execute(new FindBookByTitleQuery(title)));
 
 app.Run();
