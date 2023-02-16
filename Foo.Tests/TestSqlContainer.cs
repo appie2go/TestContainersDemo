@@ -1,3 +1,6 @@
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 using DotNet.Testcontainers.Builders;
 using DotNet.Testcontainers.Containers;
 using Foo.Data;
@@ -11,9 +14,9 @@ public class TestSqlContainer
 {
     private readonly string _temporarySqlServerPassword = Guid.NewGuid().ToString();
 
-    private IContainer _dockerContainer;
+    private IContainer _dockerContainer = null!;
 
-    private BookContext _context;
+    private BookContext _context = null!;
 
     public async Task StartAsync()
     {

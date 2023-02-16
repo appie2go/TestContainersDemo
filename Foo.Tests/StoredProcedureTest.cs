@@ -1,3 +1,5 @@
+using System;
+using System.Threading.Tasks;
 using FluentAssertions;
 using Foo.Data;
 using Foo.Data.QueryHandlers;
