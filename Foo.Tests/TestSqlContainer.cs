@@ -31,7 +31,12 @@ public class TestSqlContainer
 
     public async Task Execute(Func<BookContext, Task> func) => await func(_context);
 
-    public async Task StopAsync() => await _dockerContainer?.StopAsync()!;
+    public async Task StopAsync()
+    {
+        await _dockerContainer?.StopAsync()!;
+
+        await _context.DisposeAsync();
+    }
 
     public BookContext GetDbContext() => _context;
 
@@ -55,8 +60,9 @@ public class TestSqlContainer
     {
         // Please make me a PR for this BS, because this is terrible!
         var logs = string.Empty;
-        for (var i = 0; i < 10 || logs.Contains("Server is listening on"); i++)
+        for (var i = 0; i < 50 && !logs.Contains("Server is listening on"); i++)
         {
+            Console.WriteLine($"Waiting for server to start.. Attempt {i}");
             await Task.Delay(500);
             var (stdout, stderr) = await _dockerContainer.GetLogs();
             logs = stdout;
