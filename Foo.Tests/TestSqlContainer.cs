@@ -5,8 +5,6 @@ using DotNet.Testcontainers.Builders;
 using DotNet.Testcontainers.Containers;
 using Foo.Data;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
 
 namespace Foo.Tests;
 
@@ -71,15 +69,13 @@ public class TestSqlContainer
 
     private void InstantiateDbContext()
     {
-        var host = Host.CreateDefaultBuilder()
-            .ConfigureServices(s =>
-            {
-                s.AddDbContext<BookContext>(o =>
-                    o.UseSqlServer(
-                        $"Server=127.0.0.1;Database=test;User Id=sa;Password={_temporarySqlServerPassword};TrustServerCertificate=True"));
-            })
-            .Build();
+        var connectionString =
+            $"Server=127.0.0.1;Database=test;User Id=sa;Password={_temporarySqlServerPassword};TrustServerCertificate=True";
+        
+        var options = new DbContextOptionsBuilder<BookContext>()
+            .UseSqlServer(connectionString)
+            .Options;
 
-        _context = host.Services.GetRequiredService<BookContext>();
+        _context = new BookContext(options);
     }
 }
